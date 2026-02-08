@@ -363,6 +363,30 @@ function AuditDetailModal({ audit, onClose }) {
                                         {link.status}
                                     </span>
                                 </div>
+
+                                {/* AI Suggestions Display */}
+                                {link.alternatives && link.alternatives.length > 0 && (
+                                    <div style={{ marginTop: '12px', padding: '12px', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '0.75rem', fontWeight: 600, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                            <Icons.Sparkles style={{ width: 14, height: 14 }} />
+                                            AI Suggestions
+                                        </div>
+                                        {link.alternatives.map((alt, altIndex) => (
+                                            <div key={altIndex} style={{ marginBottom: '8px', borderBottom: altIndex < link.alternatives.length - 1 ? '1px solid #dcfce7' : 'none', paddingBottom: altIndex < link.alternatives.length - 1 ? '8px' : '0' }}>
+                                                <a href={alt.url} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 600, color: '#15803d', textDecoration: 'underline', fontSize: '0.9rem', display: 'block', marginBottom: '2px' }}>
+                                                    {alt.title}
+                                                </a>
+                                                <div style={{ fontSize: '0.8rem', color: '#14532d', lineHeight: 1.4 }}>
+                                                    {alt.description}
+                                                </div>
+                                                <div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <span style={{ opacity: 0.8 }}>Source:</span>
+                                                    <span style={{ background: '#dcfce7', padding: '1px 6px', borderRadius: '4px', fontWeight: 500 }}>{alt.sourceType}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )))}
 
