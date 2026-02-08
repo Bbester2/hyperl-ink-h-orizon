@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
             </head>
             <body>
                 <div>
-                    v3.0 (Modernized)
+                    v3.1 (Robust Key)
                 </div>
                 {children}
             </body>
