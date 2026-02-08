@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
             </head>
             <body>
                 <div>
-                    v2.1 (FIXED)
+                    v3.0 (Modernized)
                 </div>
                 {children}
             </body>

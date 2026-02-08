@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "^14.2.23",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
     "mammoth": "^1.8.0",
     "pdf-parse": "^1.1.1",
     "cheerio": "^1.0.0",
@@ -19,7 +19,7 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "eslint": "^8",
-    "eslint-config-next": "^14.2.23"
+    "eslint": "^9",
+    "eslint-config-next": "latest"
   }
 }
