@@ -102,6 +102,43 @@ export default function Home() {
     const [dragActive, setDragActive] = useState(false);
     const fileInputRef = useRef(null);
 
+    const handleSubmit = async (fileToProcess = null, urlToProcess = '') => {
+        const fileToUse = fileToProcess || file;
+        const urlToUse = urlToProcess || url;
+
+        if (!fileToUse && !urlToUse) return;
+
+        setLoading(true);
+        setResults(null); // Clear previous results
+
+        try {
+            const formData = new FormData();
+            if (fileToUse) {
+                formData.append('file', fileToUse);
+            } else if (urlToUse) {
+                formData.append('url', urlToUse);
+            }
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+            setResults(data);
+
+            // Scroll to results
+            const resultsElement = document.getElementById('results-section');
+            if (resultsElement) {
+                resultsElement.scrollIntoView({ behavior: 'smooth' });
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleDrag = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -122,40 +159,16 @@ export default function Home() {
             if (droppedFile.type === 'application/pdf' ||
                 droppedFile.name.endsWith('.docx')) {
                 setFile(droppedFile);
+                handleSubmit(droppedFile, null);
             }
         }
     };
 
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
-        }
-    };
-
-    const handleSubmit = async () => {
-        if (!file && !url) return;
-
-        setLoading(true);
-
-        try {
-            const formData = new FormData();
-            if (file) {
-                formData.append('file', file);
-            } else if (url) {
-                formData.append('url', url);
-            }
-
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            const data = await response.json();
-            setResults(data);
-        } catch (error) {
-            console.error('Upload error:', error);
-        } finally {
-            setLoading(false);
+            const selectedFile = e.target.files[0];
+            setFile(selectedFile);
+            handleSubmit(selectedFile, null);
         }
     };
 
@@ -260,7 +273,7 @@ export default function Home() {
                         />
                         <button
                             className="btn btn-primary"
-                            onClick={handleSubmit}
+                            onClick={() => handleSubmit()}
                             disabled={loading || (!file && !url)}
                         >
                             {loading ? (
@@ -281,7 +294,7 @@ export default function Home() {
 
             {/* Results Preview */}
             {results && (
-                <section style={{ padding: 'var(--space-12) 0', background: 'var(--bg-secondary)' }}>
+                <section id="results-section" style={{ padding: 'var(--space-12) 0', background: 'var(--bg-secondary)' }}>
                     <div className="container">
                         <ResultsPreview results={results} />
                     </div>
