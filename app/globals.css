@@ -374,10 +374,33 @@ a:hover {
 
 
 
+/* Correction for SVG Sizing bug */
+.results-header {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  color: var(--primary-600);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  background: var(--primary-50);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+}
+
+.results-header svg {
+  width: 16px;
+  height: 16px;
+  color: var(--primary-500);
+}
+
 .hero-content {
-  max-width: 720px;
+  max-width: 800px;
   margin: 0 auto;
+  /* Keep centered container but text left? No, lets keep centered for now as grid is complex */
   text-align: center;
+  /* User complaint was likely just the giant icon. Centered is safer for single-column */
   position: relative;
   z-index: 1;
 }
