@@ -102,6 +102,8 @@ export default function Home() {
     const [dragActive, setDragActive] = useState(false);
     const fileInputRef = useRef(null);
 
+    const [error, setError] = useState(null);
+
     const handleSubmit = async (fileToProcess = null, urlToProcess = '') => {
         const fileToUse = fileToProcess || file;
         const urlToUse = urlToProcess || url;
@@ -109,7 +111,8 @@ export default function Home() {
         if (!fileToUse && !urlToUse) return;
 
         setLoading(true);
-        setResults(null); // Clear previous results
+        setResults(null);
+        setError(null);
 
         try {
             const formData = new FormData();
@@ -124,6 +127,15 @@ export default function Home() {
                 body: formData,
             });
 
+            if (!response.ok) {
+                // Handle non-200 responses (e.g. 504 Timeout, 413 Payload Too Large)
+                if (response.status === 504) {
+                    throw new Error('Analysis timed out. The file might be too large/complex.');
+                }
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Server error: ${response.status}`);
+            }
+
             const data = await response.json();
             setResults(data);
 
@@ -132,8 +144,9 @@ export default function Home() {
             if (resultsElement) {
                 resultsElement.scrollIntoView({ behavior: 'smooth' });
             }
-        } catch (error) {
-            console.error('Upload error:', error);
+        } catch (err) {
+            console.error('Upload error:', err);
+            setError(err.message || 'An unexpected error occurred');
         } finally {
             setLoading(false);
         }
@@ -289,6 +302,26 @@ export default function Home() {
                             )}
                         </button>
                     </div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div style={{
+                            marginTop: 'var(--space-4)',
+                            padding: 'var(--space-3) var(--space-4)',
+                            background: '#fee2e2',
+                            color: '#dc2626',
+                            borderRadius: 'var(--radius-md)',
+                            fontSize: '0.875rem',
+                            textAlign: 'center',
+                            maxWidth: '400px',
+                            margin: 'var(--space-4) auto 0'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <Icons.AlertTriangle />
+                                {error}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </section>
 
