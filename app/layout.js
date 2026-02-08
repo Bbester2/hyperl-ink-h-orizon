@@ -18,21 +18,7 @@ export default function RootLayout({ children }) {
                 />
             </head>
             <body>
-                <div style={{
-                    position: 'fixed',
-                    bottom: '10px',
-                    right: '10px',
-                    background: '#0f172a',
-                    color: '#e2e8f0',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontSize: '10px',
-                    zIndex: 9999,
-                    pointerEvents: 'none',
-                    opacity: 0.7
-                }}>
-                    v1.12 (Hardcoded)
-                </div>
+
                 {children}
             </body>
         </html>
