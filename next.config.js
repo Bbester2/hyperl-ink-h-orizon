@@ -19,6 +19,8 @@ const nextConfig = {
                     { key: 'X-Frame-Options', value: 'DENY' },
                     { key: 'X-XSS-Protection', value: '1; mode=block' },
                     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+                    { key: 'Cache-Control', value: 'no-store, must-revalidate' },
+                    { key: 'Pragma', value: 'no-cache' },
                 ],
             },
         ];
