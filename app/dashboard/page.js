@@ -289,6 +289,17 @@ export default function Dashboard() {
                     onClose={() => setSelectedAudit(null)}
                 />
             )}
+
+            {/* Debug Info (Temporary) */}
+            <div style={{ marginTop: '50px', padding: '20px', background: '#f8fafc', fontSize: '12px', color: '#64748b' }}>
+                <p><strong>Debug Status:</strong></p>
+                <p>Audits Loaded: {audits.length}</p>
+                <button onClick={() => {
+                    alert(localStorage.getItem('hyperlink_audits') || 'Storage is empty');
+                }} style={{ textDecoration: 'underline', border: 'none', background: 'none', cursor: 'pointer' }}>
+                    Check Raw Storage
+                </button>
+            </div>
         </div>
     );
 }

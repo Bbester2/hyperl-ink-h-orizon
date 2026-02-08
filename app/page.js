@@ -174,9 +174,12 @@ export default function Home() {
                 if (resultsElement) {
                     resultsElement.scrollIntoView({ behavior: 'smooth' });
                 }
+                if (resultsElement) {
+                    resultsElement.scrollIntoView({ behavior: 'smooth' });
+                }
             } catch (err) {
                 console.error('Failed to save to history:', err);
-                // Don't show error to user as main function succeeded
+                setError('Warning: Failed to save results to Dashboard history. ' + err.message);
             }
         } catch (err) {
             console.error('Upload error:', err);
@@ -439,7 +442,7 @@ export default function Home() {
 }
 
 function ResultsPreview({ results }) {
-    const { stats, links = [] } = results;
+    const { summary, links = [] } = results;
 
     return (
         <>
@@ -448,19 +451,19 @@ function ResultsPreview({ results }) {
             <div className="stats-grid">
                 <div className="stat-card">
                     <h4>Total Links</h4>
-                    <div className="value">{stats?.total || links.length}</div>
+                    <div className="value">{summary?.total || links.length}</div>
                 </div>
                 <div className="stat-card">
                     <h4>Working</h4>
-                    <div className="value success">{stats?.working || 0}</div>
+                    <div className="value success">{summary?.working || 0}</div>
                 </div>
                 <div className="stat-card">
                     <h4>Broken</h4>
-                    <div className="value error">{stats?.broken || 0}</div>
+                    <div className="value error">{summary?.broken || 0}</div>
                 </div>
                 <div className="stat-card">
                     <h4>Needs Review</h4>
-                    <div className="value warning">{stats?.restricted || 0}</div>
+                    <div className="value warning">{summary?.review || 0}</div>
                 </div>
             </div>
 
