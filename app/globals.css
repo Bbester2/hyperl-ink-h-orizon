@@ -229,16 +229,14 @@ a:hover {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  background: var(--primary-700);
   color: var(--text-inverse);
-  box-shadow: var(--shadow-md), 0 0 0 0 rgba(0, 80, 155, 0);
+  border: 1px solid transparent;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-  box-shadow: var(--shadow-lg), 0 0 20px rgba(0, 80, 155, 0.2);
-  transform: translateY(-2px);
-  text-decoration: none;
+  background: var(--primary-600);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
