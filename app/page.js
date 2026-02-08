@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
+import { MAX_FILE_SIZE } from '@/lib/security';
 
 // SVG Icons - Professional stroke-style icons
 const Icons = {
@@ -109,6 +110,12 @@ export default function Home() {
         const urlToUse = urlToProcess || url;
 
         if (!fileToUse && !urlToUse) return;
+
+        // Client-side validation
+        if (fileToUse && fileToUse.size > MAX_FILE_SIZE) {
+            setError(`File is too large (${(fileToUse.size / 1024 / 1024).toFixed(1)}MB). Max size is 4.5MB.`);
+            return;
+        }
 
         setLoading(true);
         setResults(null);
