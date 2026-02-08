@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
                     pointerEvents: 'none',
                     opacity: 0.7
                 }}>
-                    v1.4 (Final)
+                    v1.5 (AI Fixed)
                 </div>
                 {children}
             </body>
