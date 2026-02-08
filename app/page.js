@@ -431,12 +431,7 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="footer">
-                <div className="container">
-                    <p>© 2026 Hyperlink Horizon. All rights reserved.</p>
-                </div>
-            </footer>
+
         </>
     );
 }

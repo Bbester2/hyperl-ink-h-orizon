@@ -17,11 +17,20 @@ export default function RootLayout({ children }) {
                     rel="stylesheet"
                 />
             </head>
-            <body>
-                <div>
-                    v3.2 (Build Fix)
-                </div>
-                {children}
+            <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+                <main style={{ flex: 1 }}>
+                    {children}
+                </main>
+                <footer style={{
+                    padding: '24px',
+                    textAlign: 'center',
+                    borderTop: '1px solid #e2e8f0',
+                    color: '#64748b',
+                    fontSize: '0.875rem',
+                    background: '#ffffff'
+                }}>
+                    <p>Created by <strong>Bradley Bester</strong></p>
+                </footer>
             </body>
         </html>
     );
