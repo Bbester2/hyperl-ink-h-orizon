@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
                     pointerEvents: 'none',
                     opacity: 0.7
                 }}>
-                    v1.8 (Key Embedded)
+                    v1.9 (AI Debug)
                 </div>
                 {children}
             </body>
