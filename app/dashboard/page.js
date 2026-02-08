@@ -98,19 +98,7 @@ const Icons = {
 };
 
 // Mock data (fallback)
-const fallbackAudits = [
-    {
-        id: 'demo-1',
-        filename: 'Example Report (Demo)',
-        file_type: 'PDF',
-        created_at: new Date().toISOString(),
-        total_links: 15,
-        working_count: 12,
-        broken_count: 2,
-        restricted_count: 1,
-        status: 'complete'
-    }
-];
+const fallbackAudits = [];
 
 const mockLinks = [
     { url: 'https://example.com/old-page', status: 'broken', statusCode: 404, reason: 'Page not found' },
