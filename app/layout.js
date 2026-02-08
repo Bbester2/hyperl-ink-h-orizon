@@ -18,9 +18,12 @@ export default function RootLayout({ children }) {
                 />
             </head>
             <body>
-
+                <div>
+                    v2.1 (FIXED)
+                </div>
                 {children}
             </body>
         </html>
     );
 }
+
