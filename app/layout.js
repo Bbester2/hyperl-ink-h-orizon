@@ -18,6 +18,9 @@ export default function RootLayout({ children }) {
                 />
             </head>
             <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ background: '#2EB1E9', color: 'white', padding: '10px', textAlign: 'center', fontWeight: 'bold' }}>
+                    SYSTEM UPDATE v4.0 LIVE - PLEASE REFRESH
+                </div>
                 <main style={{ flex: 1 }}>
                     {children}
                 </main>
