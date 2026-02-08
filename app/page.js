@@ -146,6 +146,31 @@ export default function Home() {
             const data = await response.json();
             setResults(data);
 
+            // Save to localStorage for Dashboard persistence
+            try {
+                const currentHistory = JSON.parse(localStorage.getItem('hyperlink_audits') || '[]');
+
+                // Create audit summary object
+                const newAudit = {
+                    id: data.auditId,
+                    filename: data.filename,
+                    file_type: fileToUse ? (fileToUse.type.includes('pdf') ? 'PDF' : 'DOCX') : 'URL',
+                    created_at: new Date().toISOString(),
+                    total_links: data.summary.total,
+                    working_count: data.summary.working,
+                    broken_count: data.summary.broken,
+                    restricted_count: data.summary.review,
+                    status: 'complete',
+                    links: data.links // Store links for details view
+                };
+
+                // Add to beginning of history, limit to 20 items
+                const updatedHistory = [newAudit, ...currentHistory].slice(0, 20);
+                localStorage.setItem('hyperlink_audits', JSON.stringify(updatedHistory));
+            } catch (err) {
+                console.error('Failed to save to history:', err);
+            }
+
             // Scroll to results
             const resultsElement = document.getElementById('results-section');
             if (resultsElement) {

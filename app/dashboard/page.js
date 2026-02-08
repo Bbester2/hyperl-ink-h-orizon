@@ -97,39 +97,17 @@ const Icons = {
     ),
 };
 
-// Mock data
-const mockAudits = [
+// Mock data (fallback)
+const fallbackAudits = [
     {
-        id: '1',
-        filename: 'research-paper.pdf',
+        id: 'demo-1',
+        filename: 'Example Report (Demo)',
         file_type: 'PDF',
-        created_at: '2026-02-06',
-        total_links: 45,
-        working_count: 38,
-        broken_count: 5,
-        restricted_count: 2,
-        status: 'complete'
-    },
-    {
-        id: '2',
-        filename: 'blog-article.docx',
-        file_type: 'DOCX',
-        created_at: '2026-02-03',
-        total_links: 23,
-        working_count: 20,
+        created_at: new Date().toISOString(),
+        total_links: 15,
+        working_count: 12,
         broken_count: 2,
         restricted_count: 1,
-        status: 'complete'
-    },
-    {
-        id: '3',
-        filename: 'example.com',
-        file_type: 'URL',
-        created_at: '2026-02-01',
-        total_links: 87,
-        working_count: 79,
-        broken_count: 6,
-        restricted_count: 2,
         status: 'complete'
     }
 ];
@@ -141,14 +119,29 @@ const mockLinks = [
 ];
 
 export default function Dashboard() {
+    const [audits, setAudits] = useState([]);
     const [selectedAudit, setSelectedAudit] = useState(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
-    const totalStats = mockAudits.reduce((acc, audit) => ({
-        total: acc.total + audit.total_links,
-        working: acc.working + audit.working_count,
-        broken: acc.broken + audit.broken_count,
-        restricted: acc.restricted + audit.restricted_count
+    useEffect(() => {
+        // Load audits from localStorage
+        const saved = localStorage.getItem('hyperlink_audits');
+        if (saved) {
+            try {
+                setAudits(JSON.parse(saved));
+            } catch (e) {
+                setAudits(fallbackAudits);
+            }
+        } else {
+            setAudits(fallbackAudits);
+        }
+    }, []);
+
+    const totalStats = audits.reduce((acc, audit) => ({
+        total: acc.total + (audit.total_links || 0),
+        working: acc.working + (audit.working_count || 0),
+        broken: acc.broken + (audit.broken_count || 0),
+        restricted: acc.restricted + (audit.restricted_count || 0)
     }), { total: 0, working: 0, broken: 0, restricted: 0 });
 
     const healthScore = totalStats.total > 0
@@ -235,7 +228,7 @@ export default function Dashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            {mockAudits.map((audit) => (
+                            {audits.map((audit) => (
                                 <tr key={audit.id}>
                                     <td>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
@@ -295,7 +288,7 @@ export default function Dashboard() {
                     </div>
                     <div className="insight-card">
                         <h4>Documents Analyzed</h4>
-                        <div className="value">{mockAudits.length}</div>
+                        <div className="value">{audits.length}</div>
                         <div className="subtext">Total audits performed</div>
                     </div>
                 </div>
