@@ -304,8 +304,19 @@ export default function Home() {
                         <span>Corporate Link Compliance</span>
                     </div>
 
-                    <h1>
-                        Discover & Fix <strong>Broken Links</strong> Before They Break Trust
+                    <h1 style={{
+                        fontSize: '3.5rem',
+                        fontWeight: '800',
+                        letterSpacing: '-0.03em',
+                        lineHeight: '1.1',
+                        marginBottom: '1.5rem',
+                        background: 'linear-gradient(135deg, #01081B 30%, #2EB1E9 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
+                        Audit. Verify. Optimize. <br />
+                        <span style={{ color: '#2EB1E9', WebkitTextFillColor: '#2EB1E9' }}>Intelligent Link Governance.</span>
                     </h1>
 
                     <p className="hero-description">

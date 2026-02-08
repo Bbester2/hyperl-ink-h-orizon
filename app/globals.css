@@ -365,11 +365,45 @@ a:hover {
 }
 
 /* ===== HERO SECTION ===== */
+/* Corporate Tech Theme */
 .hero {
   position: relative;
   padding: var(--space-20) 0;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-default);
+  background:
+    radial-gradient(circle at 15% 50%, rgba(46, 177, 233, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(1, 8, 27, 0.03), transparent 25%);
+  background-color: #ffffff;
+  overflow: hidden;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+/* Technical Grid Pattern Overlay */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(226, 232, 240, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 232, 240, 0.5) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 
