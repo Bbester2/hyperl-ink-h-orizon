@@ -139,7 +139,7 @@ export async function POST(request) {
     } catch (error) {
         console.error('Upload processing error:', error);
         return NextResponse.json(
-            { error: 'Failed to process document. Please try again.' },
+            { error: `Processing Failed: ${error.message}` },
             { status: 500 }
         );
     }

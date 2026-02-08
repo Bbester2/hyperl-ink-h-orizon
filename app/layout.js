@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
                     pointerEvents: 'none',
                     opacity: 0.7
                 }}>
-                    v1.9 (AI Debug)
+                    v1.10 (Error Log)
                 </div>
                 {children}
             </body>
