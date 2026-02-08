@@ -167,14 +167,16 @@ export default function Home() {
                 // Add to beginning of history, limit to 20 items
                 const updatedHistory = [newAudit, ...currentHistory].slice(0, 20);
                 localStorage.setItem('hyperlink_audits', JSON.stringify(updatedHistory));
+
+                // Show save confirmation
+                setError(null);
+                const resultsElement = document.getElementById('results-section');
+                if (resultsElement) {
+                    resultsElement.scrollIntoView({ behavior: 'smooth' });
+                }
             } catch (err) {
                 console.error('Failed to save to history:', err);
-            }
-
-            // Scroll to results
-            const resultsElement = document.getElementById('results-section');
-            if (resultsElement) {
-                resultsElement.scrollIntoView({ behavior: 'smooth' });
+                // Don't show error to user as main function succeeded
             }
         } catch (err) {
             console.error('Upload error:', err);
@@ -271,8 +273,30 @@ export default function Home() {
 
             {/* Hero Section */}
             <section className="hero">
-                <div className="container hero-content">
-                    <div className="hero-badge">
+                <div className="container" style={{ padding: 'var(--space-6) 0' }}>
+
+                    {/* Success Banner */}
+                    <div style={{
+                        background: '#ecfdf5',
+                        color: '#065f46',
+                        padding: 'var(--space-4)',
+                        borderRadius: 'var(--radius-md)',
+                        marginBottom: 'var(--space-6)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        border: '1px solid #a7f3d0'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                            <Icons.CheckCircle />
+                            <span style={{ fontWeight: 500 }}>Audit complete and saved to Dashboard!</span>
+                        </div>
+                        <Link href="/dashboard" className="btn btn-sm" style={{ background: '#059669', color: 'white', border: 'none' }}>
+                            View Dashboard
+                        </Link>
+                    </div>
+
+                    <div className="results-header">
                         <Icons.Sparkles />
                         <span>AI-Powered Link Intelligence</span>
                     </div>

@@ -327,27 +327,33 @@ function AuditDetailModal({ audit, onClose }) {
 
                     {/* Links Preview */}
                     <h3 style={{ marginBottom: 'var(--space-4)' }}>Link Details</h3>
-                    {mockLinks.map((link, index) => (
-                        <div key={index} className="card" style={{ marginBottom: 'var(--space-3)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-                                <div className={`icon-wrapper ${link.status === 'working' ? 'success' : link.status === 'broken' ? 'error' : 'warning'}`}>
-                                    {link.status === 'working' ? <Icons.CheckCircle /> :
-                                        link.status === 'broken' ? <Icons.XCircle /> : <Icons.AlertTriangle />}
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontWeight: 600, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                        {link.url}
-                                    </div>
-                                    <div style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>
-                                        {link.reason || `Status: ${link.statusCode}`}
-                                    </div>
-                                </div>
-                                <span className={`badge badge-${link.status === 'working' ? 'success' : link.status === 'broken' ? 'error' : 'warning'}`}>
-                                    {link.status}
-                                </span>
-                            </div>
+
+                    {(!audit.links || audit.links.length === 0) ? (
+                        <div style={{ padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-secondary)', background: 'var(--surface-color)', borderRadius: 'var(--radius-md)' }}>
+                            No detailed link data available for this audit.
                         </div>
-                    ))}
+                    ) : (
+                        audit.links.map((link, index) => (
+                            <div key={index} className="card" style={{ marginBottom: 'var(--space-3)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                                    <div className={`icon-wrapper ${link.status === 'working' ? 'success' : link.status === 'broken' ? 'error' : 'warning'}`}>
+                                        {link.status === 'working' ? <Icons.CheckCircle /> :
+                                            link.status === 'broken' ? <Icons.XCircle /> : <Icons.AlertTriangle />}
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontWeight: 600, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {link.original_url || link.url}
+                                        </div>
+                                        <div style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>
+                                            {link.reason || `Status: ${link.statusCode || link.status_code || 'N/A'}`}
+                                        </div>
+                                    </div>
+                                    <span className={`badge badge-${link.status === 'working' ? 'success' : link.status === 'broken' ? 'error' : 'warning'}`}>
+                                        {link.status}
+                                    </span>
+                                </div>
+                            </div>
+                        )))}
 
                     {/* Actions */}
                     <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-6)' }}>
