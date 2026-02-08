@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
                     fontSize: '0.875rem',
                     background: '#ffffff'
                 }}>
-                    <p>Created by <strong>Bradley Bester</strong></p>
+                    <p>Created by <strong>Bradley Bester</strong> (v3.11 - Clean Build)</p>
                 </footer>
             </body>
         </html>
