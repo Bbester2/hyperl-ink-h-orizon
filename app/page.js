@@ -300,8 +300,8 @@ export default function Home() {
                     </div>
 
                     <div className="results-header">
-                        <Icons.Sparkles />
-                        <span>AI-Powered Link Intelligence</span>
+                        <Icons.Shield />
+                        <span>Corporate Link Compliance</span>
                     </div>
 
                     <h1>
