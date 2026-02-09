@@ -366,114 +366,190 @@ a:hover {
 
 /* ===== HERO SECTION ===== */
 /* Corporate Tech Theme */
+/* ===== HERO SECTION (REVISED: Aramco-Style) ===== */
 .hero {
   position: relative;
-  padding: var(--space-20) 0;
-  background:
-    radial-gradient(circle at 15% 50%, rgba(46, 177, 233, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(1, 8, 27, 0.03), transparent 25%);
-  background-color: #ffffff;
+  min-height: 90vh;
+  /* Full immersion */
+  display: flex;
+  align-items: center;
+  background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #e2e8f0 100%);
   overflow: hidden;
-  border-bottom: 1px solid var(--neutral-200);
+  padding: 0;
 }
 
-/* Technical Grid Pattern Overlay */
-.hero::before {
-  content: '';
+/* Dynamic Glow Effect */
+.hero-background-glow {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    linear-gradient(rgba(226, 232, 240, 0.5) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(226, 232, 240, 0.5) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(circle at 80% 20%, rgba(46, 177, 233, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(0, 80, 155, 0.1) 0%, transparent 40%);
+  filter: blur(60px);
   pointer-events: none;
-  z-index: 0;
+  animation: pulseGlow 8s ease-in-out infinite alternate;
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 2px 4px -1px rgba(0, 0, 0, 0.03),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+@keyframes pulseGlow {
+  0% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
 }
 
-
-
-/* Correction for SVG Sizing bug */
-.results-header {
-  display: inline-flex;
+.hero-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Split screen */
+  gap: var(--space-12);
   align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-  color: var(--primary-600);
-  font-weight: 600;
-  font-size: 0.875rem;
-  letter-spacing: 0.02em;
-  background: var(--primary-50);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
 }
 
-.results-header svg {
-  width: 16px;
-  height: 16px;
-  color: var(--primary-500);
+@media (max-width: 968px) {
+  .hero-layout {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-text-content {
+    margin: 0 auto;
+  }
 }
 
-.hero-content {
-  max-width: 800px;
-  margin: 0 auto;
-  /* Keep centered container but text left? No, lets keep centered for now as grid is complex */
-  text-align: center;
-  /* User complaint was likely just the giant icon. Centered is safer for single-column */
-  position: relative;
-  z-index: 1;
+.hero-text-content {
+  max-width: 600px;
 }
 
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  background: var(--primary-50);
-  border: 1px solid var(--primary-100);
-  border-radius: var(--radius-full);
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--primary-600);
+.hero-title {
+  font-size: 4rem;
+  /* Massive */
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.04em;
   margin-bottom: var(--space-6);
-}
-
-.hero-badge svg {
-  width: 16px;
-  height: 16px;
-}
-
-.hero h1 {
-  font-size: 3.5rem;
-  line-height: 1.15;
-  margin-bottom: var(--space-6);
-  color: var(--neutral-900);
-}
-
-.hero h1 strong {
-  color: var(--primary-500);
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-description {
   font-size: 1.25rem;
   color: var(--text-secondary);
-  margin-bottom: var(--space-10);
-  line-height: 1.7;
+  line-height: 1.6;
+  max-width: 90%;
+}
+
+/* Command Center (Glass Card) */
+.command-center {
+  padding: var(--space-8);
+  border-radius: var(--radius-2xl);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 20px 40px -5px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.03);
+}
+
+.upload-zone-compact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 2px dashed var(--neutral-300);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upload-zone-compact:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: var(--primary-400);
+}
+
+.upload-zone-compact .icon-box {
+  background: var(--primary-50);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  color: var(--primary-500);
+}
+
+.upload-zone-compact .text-box h3 {
+  font-size: 1rem;
+  margin: 0;
+  color: var(--neutral-900);
+}
+
+.upload-zone-compact .text-box p {
+  font-size: 0.875rem;
+  margin: 0;
+  color: var(--text-tertiary);
+}
+
+.divider {
+  text-align: center;
+  margin: var(--space-6) 0;
+  position: relative;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--neutral-200);
+}
+
+.divider span {
+  background: transparent;
+  /* Assuming glass bg matches, confusing. Actually simple bg: white/glass */
+  background: #fdfdfd;
+  padding: 0 var(--space-3);
+  position: relative;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.url-input-wrapper-compact {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.url-input-wrapper-compact .url-input {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.btn-glow {
+  box-shadow: 0 0 20px rgba(0, 80, 155, 0.3);
+}
+
+.system-status {
+  margin-top: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: 0.75rem;
+  color: var(--success-600);
+  opacity: 0.8;
+}
+
+.system-status svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* ===== UPLOAD ZONE ===== */

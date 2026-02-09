@@ -276,122 +276,94 @@ export default function Home() {
 
             {/* Hero Section */}
             <section className="hero">
-                <div className="container" style={{ padding: 'var(--space-6) 0' }}>
+                <div className="hero-background-glow"></div>
+                <div className="container relative z-10">
 
-                    {/* Success Banner */}
-                    <div style={{
-                        background: '#ecfdf5',
-                        color: '#065f46',
-                        padding: 'var(--space-4)',
-                        borderRadius: 'var(--radius-md)',
-                        marginBottom: 'var(--space-6)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        border: '1px solid #a7f3d0'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                            <Icons.CheckCircle />
-                            <span style={{ fontWeight: 500 }}>Audit complete and saved to Dashboard!</span>
+                    <div className="hero-layout">
+                        {/* Left Column: Text */}
+                        <div className="hero-text-content">
+                            <div className="results-header">
+                                <Icons.Shield />
+                                <span>Corporate Link Compliance</span>
+                            </div>
+
+                            <h1 className="hero-title">
+                                Audit. Verify. <br />
+                                <span className="text-gradient">Shoot for the Future.</span>
+                            </h1>
+
+                            <p className="hero-description">
+                                Intelligent link governance for the modern web.
+                                Secure your digital footprint with AI-powered analysis.
+                            </p>
                         </div>
-                        <Link href="/dashboard" className="btn btn-sm" style={{ background: '#059669', color: 'white', border: 'none' }}>
-                            View Dashboard
-                        </Link>
-                    </div>
 
-                    <div className="results-header">
-                        <Icons.Shield />
-                        <span>Corporate Link Compliance</span>
-                    </div>
+                        {/* Right Column: Glass Card Interface */}
+                        <div className="hero-interface">
+                            <div className="glass-panel command-center">
+                                {/* Upload Tab */}
+                                <div
+                                    className={`upload-zone-compact ${dragActive ? 'dragging' : ''} ${file ? 'has-file' : ''}`}
+                                    onDragEnter={handleDrag}
+                                    onDragLeave={handleDrag}
+                                    onDragOver={handleDrag}
+                                    onDrop={handleDrop}
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        className="file-input"
+                                        accept=".pdf,.docx"
+                                        onChange={handleFileChange}
+                                    />
+                                    <div className="icon-box">
+                                        <Icons.Upload />
+                                    </div>
+                                    <div className="text-box">
+                                        <h3>{file ? file.name : 'Upload Document'}</h3>
+                                        <p>{file ? 'Ready to analyze' : 'Drag & Drop PDF or DOCX'}</p>
+                                    </div>
+                                </div>
 
-                    <h1 style={{
-                        fontSize: '3.5rem',
-                        fontWeight: '800',
-                        letterSpacing: '-0.03em',
-                        lineHeight: '1.1',
-                        marginBottom: '1.5rem',
-                        background: 'linear-gradient(135deg, #01081B 30%, #2EB1E9 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
-                    }}>
-                        Audit. Verify. Optimize. <br />
-                        <span style={{ color: '#2EB1E9', WebkitTextFillColor: '#2EB1E9' }}>Intelligent Link Governance.</span>
-                    </h1>
+                                <div className="divider">
+                                    <span>OR</span>
+                                </div>
 
-                    <p className="hero-description">
-                        Upload your documents, paste URLs, and let our AI analyze every link.
-                        Get instant verification, smart alternatives, and actionable reports.
-                    </p>
+                                {/* URL Input */}
+                                <div className="url-input-wrapper-compact">
+                                    <input
+                                        type="url"
+                                        className="url-input"
+                                        placeholder="Paste target URL..."
+                                        value={url}
+                                        onChange={(e) => setUrl(e.target.value)}
+                                    />
+                                    <button
+                                        className="btn btn-primary btn-glow"
+                                        onClick={() => handleSubmit()}
+                                        disabled={loading || (!file && !url)}
+                                    >
+                                        {loading ? 'Processing...' : 'Analyze'}
+                                    </button>
+                                </div>
 
-                    {/* Upload Zone */}
-                    <div
-                        className={`upload-zone ${dragActive ? 'dragging' : ''} ${file ? 'has-file' : ''}`}
-                        onDragEnter={handleDrag}
-                        onDragLeave={handleDrag}
-                        onDragOver={handleDrag}
-                        onDrop={handleDrop}
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            className="file-input"
-                            accept=".pdf,.docx"
-                            onChange={handleFileChange}
-                        />
-                        <Icons.Upload />
-                        <h3>{file ? file.name : 'Drop your document here'}</h3>
-                        <p>{file ? 'Click to change file' : 'Supports PDF and DOCX files'}</p>
-                    </div>
+                                {/* Subtle Status (Replaces Green Banner) */}
+                                <div className="system-status">
+                                    <Icons.CheckCircle />
+                                    <span>System Operational. Results auto-save to Dashboard.</span>
+                                </div>
 
-                    {/* URL Input */}
-                    <div className="url-input-wrapper">
-                        <input
-                            type="url"
-                            className="url-input"
-                            placeholder="https://example.com/article"
-                            value={url}
-                            onChange={(e) => setUrl(e.target.value)}
-                        />
-                        <button
-                            className="btn btn-primary"
-                            onClick={() => handleSubmit()}
-                            disabled={loading || (!file && !url)}
-                        >
-                            {loading ? (
-                                <>
-                                    <div className="loading-spinner" style={{ width: 18, height: 18, borderWidth: 2 }} />
-                                    Analyzing...
-                                </>
-                            ) : (
-                                <>
-                                    <Icons.Search />
-                                    Analyze
-                                </>
-                            )}
-                        </button>
-                    </div>
-
-                    {/* Error Message */}
-                    {error && (
-                        <div style={{
-                            marginTop: 'var(--space-4)',
-                            padding: 'var(--space-3) var(--space-4)',
-                            background: '#fee2e2',
-                            color: '#dc2626',
-                            borderRadius: 'var(--radius-md)',
-                            fontSize: '0.875rem',
-                            textAlign: 'center',
-                            maxWidth: '400px',
-                            margin: 'var(--space-4) auto 0'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                <Icons.AlertTriangle />
-                                {error}
+                                {error && (
+                                    <div className="error-message-compact">
+                                        <Icons.AlertTriangle />
+                                        {error}
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    )}
+                    </div>
+
                 </div>
             </section>
 
@@ -404,15 +376,12 @@ export default function Home() {
                 </section>
             )}
 
-            {/* Features Section */}
+            {/* Features (Redesigned as Floating Cards) */}
             <section id="features" className="features-section">
                 <div className="container">
-                    <h2>Powerful Features for Link Management</h2>
-                    <p>Everything you need to ensure your documents maintain healthy, accessible links.</p>
-
                     <div className="features-grid">
                         {features.map((feature, index) => (
-                            <div key={index} className="feature-card">
+                            <div key={index} className="feature-card glass-panel">
                                 <div className="icon-wrapper">
                                     {feature.icon}
                                 </div>
@@ -426,21 +395,19 @@ export default function Home() {
 
             {/* CTA Section */}
             <section className="cta-section">
-                <div className="container">
-                    <h2>Ready to Audit Your Links?</h2>
-                    <p>Start with a free audit. No signup required for your first document.</p>
-
-                    <div className="cta-buttons">
-                        <Link href="/dashboard" className="btn btn-primary">
-                            Start Free Audit
+                <div className="container text-center">
+                    <h2>Ready to Optimize?</h2>
+                    <div className="cta-buttons justify-center">
+                        <Link href="/dashboard" className="btn btn-primary btn-lg">
+                            Launch Dashboard
                             <Icons.ArrowRight />
                         </Link>
-                        <a href="#features" className="btn btn-secondary">
-                            Learn More
-                        </a>
                     </div>
                 </div>
             </section>
+        </>
+    );
+}
 
 
         </>
