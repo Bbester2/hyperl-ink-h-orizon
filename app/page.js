@@ -410,10 +410,6 @@ export default function Home() {
 }
 
 
-        </>
-    );
-}
-
 function ResultsPreview({ results }) {
     const { summary, links = [] } = results;
 
