@@ -174,9 +174,6 @@ export default function Home() {
                 if (resultsElement) {
                     resultsElement.scrollIntoView({ behavior: 'smooth' });
                 }
-                if (resultsElement) {
-                    resultsElement.scrollIntoView({ behavior: 'smooth' });
-                }
             } catch (err) {
                 console.error('Failed to save to history:', err);
                 setError('Warning: Failed to save results to Dashboard history. ' + err.message);
@@ -276,91 +273,90 @@ export default function Home() {
 
             {/* Hero Section */}
             <section className="hero">
-                <div className="hero-background-glow"></div>
+                {/* Floating Shapes */}
+                <div className="hero-floating-shape shape-1"></div>
+                <div className="hero-floating-shape shape-2"></div>
+                <div className="hero-floating-shape shape-3"></div>
+
                 <div className="container relative z-10">
 
-                    <div className="hero-layout">
-                        {/* Left Column: Text */}
-                        <div className="hero-text-content">
-                            <div className="results-header">
-                                <Icons.Shield />
-                                <span>Corporate Link Compliance</span>
+                    <div className="hero-flow">
+                        {/* Centered Text */}
+                        <div className="hero-text-center">
+                            <div className="badge-pill">
+                                <span className="badge-dot"></span>
+                                <span>Version 4.7 &bull; Genie Design</span>
                             </div>
 
-                            <h1 className="hero-title">
-                                Audit. Verify. <br />
-                                <span className="text-gradient">Shoot for the Future.</span>
+                            <h1 className="hero-title-center">
+                                Link Governance <br />
+                                <span className="text-gradient-future">Reimagined.</span>
                             </h1>
 
-                            <p className="hero-description">
-                                Intelligent link governance for the modern web.
-                                Secure your digital footprint with AI-powered analysis.
+                            <p className="hero-description-center">
+                                Advanced AI verification for the modern enterprise.
+                                <br className="hidden md:block" />
+                                Secure, fast, and effortless.
                             </p>
                         </div>
 
-                        {/* Right Column: Glass Card Interface */}
-                        <div className="hero-interface">
-                            <div className="glass-panel command-center">
-                                {/* Upload Tab */}
-                                <div
-                                    className={`upload-zone-compact ${dragActive ? 'dragging' : ''} ${file ? 'has-file' : ''}`}
-                                    onDragEnter={handleDrag}
-                                    onDragLeave={handleDrag}
-                                    onDragOver={handleDrag}
-                                    onDrop={handleDrop}
-                                    onClick={() => fileInputRef.current?.click()}
-                                >
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        className="file-input"
-                                        accept=".pdf,.docx"
-                                        onChange={handleFileChange}
-                                    />
-                                    <div className="icon-box">
+                        {/* Centered Glass Interface */}
+                        <div className="glass-interface-center">
+                            {/* Upload Tab */}
+                            <div
+                                className={`upload-zone-future ${dragActive ? 'dragging' : ''} ${file ? 'has-file' : ''}`}
+                                onDragEnter={handleDrag}
+                                onDragLeave={handleDrag}
+                                onDragOver={handleDrag}
+                                onDrop={handleDrop}
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    className="file-input"
+                                    accept=".pdf,.docx"
+                                    onChange={handleFileChange}
+                                />
+                                <div className="upload-content">
+                                    <div className="icon-future">
                                         <Icons.Upload />
                                     </div>
-                                    <div className="text-box">
+                                    <div className="text-future">
                                         <h3>{file ? file.name : 'Upload Document'}</h3>
-                                        <p>{file ? 'Ready to analyze' : 'Drag & Drop PDF or DOCX'}</p>
+                                        <p>{file ? 'Ready to analyze' : 'Drop PDF or DOCX here'}</p>
                                     </div>
                                 </div>
-
-                                <div className="divider">
-                                    <span>OR</span>
-                                </div>
-
-                                {/* URL Input */}
-                                <div className="url-input-wrapper-compact">
-                                    <input
-                                        type="url"
-                                        className="url-input"
-                                        placeholder="Paste target URL..."
-                                        value={url}
-                                        onChange={(e) => setUrl(e.target.value)}
-                                    />
-                                    <button
-                                        className="btn btn-primary btn-glow"
-                                        onClick={() => handleSubmit()}
-                                        disabled={loading || (!file && !url)}
-                                    >
-                                        {loading ? 'Processing...' : 'Analyze'}
-                                    </button>
-                                </div>
-
-                                {/* Subtle Status (Replaces Green Banner) */}
-                                <div className="system-status">
-                                    <Icons.CheckCircle />
-                                    <span>System Operational. Results auto-save to Dashboard.</span>
-                                </div>
-
-                                {error && (
-                                    <div className="error-message-compact">
-                                        <Icons.AlertTriangle />
-                                        {error}
-                                    </div>
-                                )}
                             </div>
+
+                            <div className="divider-future">
+                                <span>OR</span>
+                            </div>
+
+                            {/* URL Input */}
+                            <div className="url-input-group">
+                                <input
+                                    type="url"
+                                    className="url-input-future"
+                                    placeholder="Paste URL to analyze..."
+                                    value={url}
+                                    onChange={(e) => setUrl(e.target.value)}
+                                />
+                                <button
+                                    className="btn-future"
+                                    onClick={() => handleSubmit()}
+                                    disabled={loading || (!file && !url)}
+                                >
+                                    {loading ? 'Scanning...' : 'Analyze'}
+                                </button>
+                            </div>
+
+                            {error && (
+                                <div className="error-message-center" style={{ marginTop: '1rem', color: '#EF4444' }}>
+                                    <Icons.AlertTriangle />
+                                    {error}
+                                </div>
+                            )}
                         </div>
                     </div>
 
