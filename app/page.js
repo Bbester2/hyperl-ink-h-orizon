@@ -285,7 +285,7 @@ export default function Home() {
                         <div className="hero-text-center">
                             <div className="badge-pill">
                                 <span className="badge-dot"></span>
-                                <span>Version 4.7 &bull; Genie Design</span>
+                                <span>Version 5.2 &bull; Optimized</span>
                             </div>
 
                             <h1 className="hero-title-center">
