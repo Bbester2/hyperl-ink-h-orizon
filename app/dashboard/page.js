@@ -431,3 +431,74 @@ function AuditDetailModal({ audit, onClose, onExport }) {
         </div>
     );
 }
+
+// Helper: Generate CSV Content
+function generateCSV(audit) {
+    const headers = [
+        'URL', 'Status', 'Status Code', 'Reason', 'Suggestion 1', 'Suggestion 2'
+    ];
+
+    const rows = (audit.links || []).map(link => {
+        const suggestions = link.alternatives || [];
+        return [
+            `"${link.original_url || link.url}"`,
+            link.status,
+            link.statusCode || link.status_code || '',
+            `"${link.reason || ''}"`,
+            `"${suggestions[0]?.url || ''}"`,
+            `"${suggestions[1]?.url || ''}"`
+        ].join(',');
+    });
+
+    return [
+        `# Hyperlink Horizon Audit Report`,
+        `# File: ${audit.filename}`,
+        `# Date: ${audit.created_at}`,
+        `# Total Links: ${audit.total_links}`,
+        '',
+        headers.join(','),
+        ...rows
+    ].join('\n');
+}
+
+// Helper: Generate Markdown Content
+function generateMarkdown(audit) {
+    let md = `# Link Audit Report\n\n`;
+    md += `**Document:** ${audit.filename}\n`;
+    md += `**Date:** ${new Date(audit.created_at).toLocaleDateString()}\n`;
+    md += `**Total Links:** ${audit.total_links}\n\n`;
+
+    md += `## Summary\n`;
+    md += `| Status | Count |\n|---|---|\n`;
+    md += `| ✅ Working | ${audit.working_count} |\n`;
+    md += `| ❌ Broken | ${audit.broken_count} |\n`;
+    md += `| 🔐 Restricted | ${audit.restricted_count} |\n\n`;
+
+    md += `## Link Details\n\n`;
+
+    const links = audit.links || [];
+    if (links.length === 0) return md + "_No link details available._";
+
+    ['broken', 'restricted', 'redirect', 'working'].forEach(status => {
+        const group = links.filter(l => l.status === status);
+        if (group.length === 0) return;
+
+        const emoji = { broken: '❌', restricted: '🔐', redirect: '↪️', working: '✅' };
+        md += `### ${emoji[status] || ''} ${status.toUpperCase()} (${group.length})\n`;
+
+        group.forEach(link => {
+            md += `- **${link.original_url || link.url}**\n`;
+            if (link.reason) md += `  - Reason: ${link.reason}\n`;
+
+            if (link.alternatives && link.alternatives.length > 0) {
+                md += `  - **Suggestions:**\n`;
+                link.alternatives.forEach(alt => {
+                    md += `    - [${alt.title}](${alt.url}): ${alt.description}\n`;
+                });
+            }
+            md += '\n';
+        });
+    });
+
+    return md;
+}
