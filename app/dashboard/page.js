@@ -137,9 +137,32 @@ export default function Dashboard() {
         : 0;
 
     const handleExport = (auditId, format = 'csv') => {
-        if (!auditId) return;
-        // Trigger download via API
-        window.location.href = `/api/export?auditId=${auditId}&format=${format}`;
+        const audit = audits.find(a => a.id === auditId);
+        if (!audit) return;
+
+        let content = '';
+        let mimeType = '';
+        let extension = '';
+
+        if (format === 'csv') {
+            content = generateCSV(audit);
+            mimeType = 'text/csv;charset=utf-8;';
+            extension = 'csv';
+        } else {
+            content = generateMarkdown(audit);
+            mimeType = 'text/markdown;charset=utf-8;';
+            extension = 'md';
+        }
+
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `audit-${audit.filename}-${new Date().toISOString().slice(0, 10)}.${extension}`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
