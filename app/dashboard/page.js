@@ -136,6 +136,12 @@ export default function Dashboard() {
         ? Math.round((totalStats.working / totalStats.total) * 100)
         : 0;
 
+    const handleExport = (auditId, format = 'csv') => {
+        if (!auditId) return;
+        // Trigger download via API
+        window.location.href = `/api/export?auditId=${auditId}&format=${format}`;
+    };
+
     return (
         <div className="dashboard-layout">
             {/* Sidebar */}
@@ -250,6 +256,7 @@ export default function Dashboard() {
                                             <button
                                                 className="action-btn"
                                                 title="Export"
+                                                onClick={() => handleExport(audit.id, 'csv')}
                                             >
                                                 <Icons.Download />
                                             </button>
@@ -287,6 +294,7 @@ export default function Dashboard() {
                 <AuditDetailModal
                     audit={selectedAudit}
                     onClose={() => setSelectedAudit(null)}
+                    onExport={(format) => handleExport(selectedAudit.id, format)}
                 />
             )}
 
@@ -295,7 +303,7 @@ export default function Dashboard() {
     );
 }
 
-function AuditDetailModal({ audit, onClose }) {
+function AuditDetailModal({ audit, onClose, onExport }) {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -383,7 +391,10 @@ function AuditDetailModal({ audit, onClose }) {
 
                     {/* Actions */}
                     <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-6)' }}>
-                        <button className="btn btn-primary">
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => onExport && onExport('csv')}
+                        >
                             <Icons.Download />
                             Export Report
                         </button>
