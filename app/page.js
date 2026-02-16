@@ -129,6 +129,19 @@ export default function Home() {
                 formData.append('url', urlToUse);
             }
 
+            // Append Analysis Configuration from Settings
+            try {
+                const settings = JSON.parse(localStorage.getItem('hyperlink_settings') || '{}');
+                if (settings.strictMode) {
+                    formData.append('strictMode', 'true');
+                }
+                if (settings.ignoredDomains) {
+                    formData.append('ignoredDomains', settings.ignoredDomains);
+                }
+            } catch (e) {
+                console.warn('Failed to load settings:', e);
+            }
+
             const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData,

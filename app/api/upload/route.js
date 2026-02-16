@@ -17,6 +17,8 @@ export async function POST(request) {
         const formData = await request.formData();
         const file = formData.get('file');
         const url = formData.get('url');
+        const strictMode = formData.get('strictMode') === 'true';
+        const ignoredDomains = formData.get('ignoredDomains') || '';
 
         if (!file && !url) {
             return NextResponse.json(
@@ -89,8 +91,11 @@ export async function POST(request) {
         // Create audit record
         const auditId = createAudit(filename, fileType, sourceUrl);
 
-        // Verify all links
-        const verifiedLinks = await verifyLinks(links);
+        // Verify all links with settings
+        const verifiedLinks = await verifyLinks(links, {
+            strictMode,
+            ignoredDomains: ignoredDomains.split('\n').map(d => d.trim()).filter(d => d)
+        });
 
         // Calculate summary
         const summary = {

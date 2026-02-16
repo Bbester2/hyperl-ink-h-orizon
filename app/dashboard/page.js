@@ -152,7 +152,12 @@ export default function Dashboard() {
         let mimeType = '';
         let extension = '';
 
-        if (format === 'csv') {
+        // Read export preference
+        const settings = JSON.parse(localStorage.getItem('hyperlink_settings') || '{}');
+        const defaultFormat = settings.exportFormat || 'csv';
+        const finalFormat = format || defaultFormat; // Allow override if passed, otherwise use default
+
+        if (finalFormat === 'csv') {
             content = '\uFEFF' + generateCSV(audit); // Add BOM for Excel
             mimeType = 'text/csv;charset=utf-8';
             extension = 'csv';
@@ -477,7 +482,7 @@ function AuditDetailModal({ audit, onClose, onExport }) {
                     <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-6)' }}>
                         <button
                             className="btn btn-primary"
-                            onClick={() => onExport && onExport('csv')}
+                            onClick={() => onExport && onExport()}
                         >
                             <Icons.Download />
                             Export Report
