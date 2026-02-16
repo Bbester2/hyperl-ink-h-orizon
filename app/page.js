@@ -160,6 +160,7 @@ export default function Home() {
                     working_count: data.summary.working,
                     broken_count: data.summary.broken,
                     restricted_count: data.summary.review,
+                    images_count: data.summary.images || 0,
                     status: 'complete',
                     links: data.links // Store links for details view
                 };
@@ -437,7 +438,8 @@ function ResultsPreview({ results }) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                         <div className={`icon-wrapper ${link.status === 'working' ? 'success' : link.status === 'broken' ? 'error' : 'warning'}`}>
                             {link.status === 'working' ? <Icons.CheckCircle /> :
-                                link.status === 'broken' ? <Icons.XCircle /> : <Icons.AlertTriangle />}
+                                link.status === 'broken' ? <Icons.XCircle /> :
+                                    link.status === 'timeout' ? <Icons.AlertTriangle /> : <Icons.AlertTriangle />}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontWeight: 600, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

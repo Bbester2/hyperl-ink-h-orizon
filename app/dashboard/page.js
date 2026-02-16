@@ -95,6 +95,13 @@ const Icons = {
             <polyline points="2 12 12 17 22 12" />
         </svg>
     ),
+    Image: () => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+        </svg>
+    ),
 };
 
 // Mock data (fallback)
@@ -129,8 +136,9 @@ export default function Dashboard() {
         total: acc.total + (audit.total_links || 0),
         working: acc.working + (audit.working_count || 0),
         broken: acc.broken + (audit.broken_count || 0),
-        restricted: acc.restricted + (audit.restricted_count || 0)
-    }), { total: 0, working: 0, broken: 0, restricted: 0 });
+        restricted: acc.restricted + (audit.restricted_count || 0),
+        images: acc.images + (audit.images_count || 0)
+    }), { total: 0, working: 0, broken: 0, restricted: 0, images: 0 });
 
     const healthScore = totalStats.total > 0
         ? Math.round((totalStats.working / totalStats.total) * 100)
@@ -220,6 +228,10 @@ export default function Dashboard() {
                     <div className="stat-card">
                         <h4>Needs Review</h4>
                         <div className="value warning">{totalStats.restricted}</div>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Images</h4>
+                        <div className="value info">{totalStats.images}</div>
                     </div>
                 </div>
 
@@ -356,6 +368,10 @@ function AuditDetailModal({ audit, onClose, onExport }) {
                             <h4>Review</h4>
                             <div className="value warning">{audit.restricted_count}</div>
                         </div>
+                        <div className="stat-card">
+                            <h4>Images</h4>
+                            <div className="value info">{audit.images_count || 0}</div>
+                        </div>
                     </div>
 
                     {/* Links Preview */}
@@ -369,9 +385,10 @@ function AuditDetailModal({ audit, onClose, onExport }) {
                         audit.links.map((link, index) => (
                             <div key={index} className="card" style={{ marginBottom: 'var(--space-3)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-                                    <div className={`icon-wrapper ${link.status === 'working' ? 'success' : link.status === 'broken' ? 'error' : 'warning'}`}>
-                                        {link.status === 'working' ? <Icons.CheckCircle /> :
-                                            link.status === 'broken' ? <Icons.XCircle /> : <Icons.AlertTriangle />}
+                                    <div className={`icon-wrapper ${link.isImage ? 'info' : link.status === 'working' ? 'success' : link.status === 'broken' ? 'error' : 'warning'}`}>
+                                        {link.isImage ? <Icons.Image /> :
+                                            link.status === 'working' ? <Icons.CheckCircle /> :
+                                                link.status === 'broken' ? <Icons.XCircle /> : <Icons.AlertTriangle />}
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{ fontWeight: 600, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -435,13 +452,14 @@ function AuditDetailModal({ audit, onClose, onExport }) {
 // Helper: Generate CSV Content
 function generateCSV(audit) {
     const headers = [
-        'URL', 'Status', 'Status Code', 'Reason', 'Suggestion 1', 'Suggestion 2'
+        'URL', 'Type', 'Status', 'Status Code', 'Reason', 'Suggestion 1', 'Suggestion 2'
     ];
 
     const rows = (audit.links || []).map(link => {
         const suggestions = link.alternatives || [];
         return [
             `"${link.original_url || link.url}"`,
+            link.isImage ? 'Image' : 'Link',
             link.status,
             link.statusCode || link.status_code || '',
             `"${link.reason || ''}"`,
@@ -472,18 +490,24 @@ function generateMarkdown(audit) {
     md += `| Status | Count |\n|---|---|\n`;
     md += `| ✅ Working | ${audit.working_count} |\n`;
     md += `| ❌ Broken | ${audit.broken_count} |\n`;
-    md += `| 🔐 Restricted | ${audit.restricted_count} |\n\n`;
+    md += `| 🔐 Restricted | ${audit.restricted_count} |\n`;
+    md += `| 🖼️ Images | ${audit.images_count || 0} |\n\n`;
 
     md += `## Link Details\n\n`;
 
     const links = audit.links || [];
     if (links.length === 0) return md + "_No link details available._";
 
-    ['broken', 'restricted', 'redirect', 'working'].forEach(status => {
-        const group = links.filter(l => l.status === status);
+    ['broken', 'restricted', 'timeout', 'redirect', 'working'].forEach(status => {
+        // Separate images from normal working links
+        const group = links.filter(l => {
+            if (status === 'working') return l.status === 'working' && !l.isImage;
+            return l.status === status && !l.isImage;
+        });
+
         if (group.length === 0) return;
 
-        const emoji = { broken: '❌', restricted: '🔐', redirect: '↪️', working: '✅' };
+        const emoji = { broken: '❌', restricted: '🔐', timeout: '⏱️', redirect: '↪️', working: '✅' };
         md += `### ${emoji[status] || ''} ${status.toUpperCase()} (${group.length})\n`;
 
         group.forEach(link => {
@@ -499,6 +523,17 @@ function generateMarkdown(audit) {
             md += '\n';
         });
     });
+
+    // Images Section
+    const images = links.filter(l => l.isImage);
+    if (images.length > 0) {
+        md += `### 🖼️ IMAGES (${images.length})\n`;
+        images.forEach(link => {
+            md += `- **${link.original_url || link.url}**\n`;
+            if (link.reason) md += `  - Reason: ${link.reason}\n`;
+            md += '\n';
+        });
+    }
 
     return md;
 }

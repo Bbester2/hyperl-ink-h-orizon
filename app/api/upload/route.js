@@ -81,6 +81,7 @@ export async function POST(request) {
                     working: 0,
                     broken: 0,
                     review: 0,
+                    images: 0,
                 },
             });
         }
@@ -94,9 +95,10 @@ export async function POST(request) {
         // Calculate summary
         const summary = {
             total: verifiedLinks.length,
-            working: verifiedLinks.filter(l => l.status === 'working').length,
+            working: verifiedLinks.filter(l => l.status === 'working' && !l.isImage).length,
             broken: verifiedLinks.filter(l => l.status === 'broken').length,
-            review: verifiedLinks.filter(l => ['redirect', 'restricted'].includes(l.status)).length,
+            review: verifiedLinks.filter(l => ['redirect', 'restricted', 'timeout'].includes(l.status)).length,
+            images: verifiedLinks.filter(l => l.isImage).length,
         };
 
         // Save links to database
@@ -127,6 +129,7 @@ export async function POST(request) {
             working: summary.working,
             broken: summary.broken,
             restricted: summary.review,
+            images: summary.images,
         });
 
         return NextResponse.json({
