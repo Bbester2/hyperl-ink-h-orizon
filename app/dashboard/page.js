@@ -443,8 +443,9 @@ function AuditDetailModal({ audit, onClose, onExport }) {
                                         <div style={{ fontWeight: 600, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {link.original_url || link.url}
                                         </div>
-                                        <div style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>
-                                            {link.reason || `Status: ${link.statusCode || link.status_code || 'N/A'}`}
+                                        <div style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                            <span>{link.reason || `Status: ${link.statusCode || link.status_code || 'N/A'}`}</span>
+                                            {link.date && <span style={{ fontSize: '0.75rem', background: '#f3f4f6', padding: '1px 6px', borderRadius: '4px' }}>📅 {new Date(link.date).toLocaleDateString()}</span>}
                                         </div>
                                     </div>
                                     <span className={`badge badge-${link.status === 'working' ? 'success' : link.status === 'broken' ? 'error' : 'warning'}`}>
@@ -501,7 +502,7 @@ function AuditDetailModal({ audit, onClose, onExport }) {
 // Helper: Generate CSV Content
 function generateCSV(audit) {
     const headers = [
-        'URL', 'Type', 'Status', 'Status Code', 'Reason', 'Context', 'Suggestion 1', 'Suggestion 2'
+        'URL', 'Type', 'Status', 'Status Code', 'Date', 'Reason', 'Context', 'Suggestion 1', 'Suggestion 2'
     ];
 
     const rows = (audit.links || []).map(link => {
@@ -521,6 +522,7 @@ function generateCSV(audit) {
             link.isImage ? 'Image' : 'Link',
             link.status,
             link.statusCode || link.status_code || '',
+            link.date ? new Date(link.date).toISOString().slice(0, 10) : '',
             esc(link.reason || ''),
             esc(link.context || ''),
             esc(suggestions[0]?.url || ''),
