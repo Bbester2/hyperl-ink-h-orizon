@@ -153,20 +153,23 @@ export default function Dashboard() {
         let extension = '';
 
         if (format === 'csv') {
-            content = generateCSV(audit);
-            mimeType = 'text/csv;charset=utf-8;';
+            content = '\uFEFF' + generateCSV(audit); // Add BOM for Excel
+            mimeType = 'text/csv;charset=utf-8';
             extension = 'csv';
         } else {
             content = generateMarkdown(audit);
-            mimeType = 'text/markdown;charset=utf-8;';
+            mimeType = 'text/markdown;charset=utf-8';
             extension = 'md';
         }
+
+        // Strip existing extension if present
+        const safeFilename = audit.filename.replace(/\.[^/.]+$/, "");
 
         const blob = new Blob([content], { type: mimeType });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.setAttribute('href', url);
-        link.setAttribute('download', `audit-${audit.filename}-${new Date().toISOString().slice(0, 10)}.${extension}`);
+        link.setAttribute('download', `audit-${safeFilename}-${new Date().toISOString().slice(0, 10)}.${extension}`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
