@@ -342,6 +342,17 @@ export default function Dashboard() {
 }
 
 function AuditDetailModal({ audit, onClose, onExport }) {
+    const [filter, setFilter] = useState('all'); // 'all', 'working', 'broken', 'restricted', 'images'
+
+    const filteredLinks = (audit.links || []).filter(link => {
+        if (filter === 'all') return true;
+        if (filter === 'images') return link.isImage;
+        if (filter === 'working') return link.status === 'working' && !link.isImage;
+        if (filter === 'broken') return link.status === 'broken';
+        if (filter === 'restricted') return link.status === 'restricted' || link.status === 'redirect' || link.status === 'timeout';
+        return true;
+    });
+
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -355,37 +366,67 @@ function AuditDetailModal({ audit, onClose, onExport }) {
                 <div className="modal-body">
                     {/* Stats */}
                     <div className="stats-grid" style={{ marginBottom: 'var(--space-8)' }}>
-                        <div className="stat-card">
+                        <div
+                            className={`stat-card ${filter === 'all' ? 'active' : ''}`}
+                            onClick={() => setFilter('all')}
+                            style={{ cursor: 'pointer', border: filter === 'all' ? '2px solid var(--primary-color)' : '' }}
+                        >
                             <h4>Total</h4>
                             <div className="value">{audit.total_links}</div>
                         </div>
-                        <div className="stat-card">
+                        <div
+                            className={`stat-card ${filter === 'working' ? 'active' : ''}`}
+                            onClick={() => setFilter('working')}
+                            style={{ cursor: 'pointer', border: filter === 'working' ? '2px solid var(--success-color)' : '' }}
+                        >
                             <h4>Working</h4>
                             <div className="value success">{audit.working_count}</div>
                         </div>
-                        <div className="stat-card">
+                        <div
+                            className={`stat-card ${filter === 'broken' ? 'active' : ''}`}
+                            onClick={() => setFilter('broken')}
+                            style={{ cursor: 'pointer', border: filter === 'broken' ? '2px solid var(--error-color)' : '' }}
+                        >
                             <h4>Broken</h4>
                             <div className="value error">{audit.broken_count}</div>
                         </div>
-                        <div className="stat-card">
+                        <div
+                            className={`stat-card ${filter === 'restricted' ? 'active' : ''}`}
+                            onClick={() => setFilter('restricted')}
+                            style={{ cursor: 'pointer', border: filter === 'restricted' ? '2px solid var(--warning-color)' : '' }}
+                        >
                             <h4>Review</h4>
                             <div className="value warning">{audit.restricted_count}</div>
                         </div>
-                        <div className="stat-card">
+                        <div
+                            className={`stat-card ${filter === 'images' ? 'active' : ''}`}
+                            onClick={() => setFilter('images')}
+                            style={{ cursor: 'pointer', border: filter === 'images' ? '2px solid var(--info-color)' : '' }}
+                        >
                             <h4>Images</h4>
                             <div className="value info">{audit.images_count || 0}</div>
                         </div>
                     </div>
 
                     {/* Links Preview */}
-                    <h3 style={{ marginBottom: 'var(--space-4)' }}>Link Details</h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                        <h3>Link Details {filter !== 'all' && <span style={{ fontSize: '0.8em', opacity: 0.7 }}>({filter})</span>}</h3>
+                        {filter !== 'all' && (
+                            <button
+                                onClick={() => setFilter('all')}
+                                style={{ background: 'none', border: 'none', color: 'var(--primary-color)', cursor: 'pointer', fontSize: '0.9rem' }}
+                            >
+                                Clear Filter
+                            </button>
+                        )}
+                    </div>
 
-                    {(!audit.links || audit.links.length === 0) ? (
+                    {(!filteredLinks || filteredLinks.length === 0) ? (
                         <div style={{ padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-secondary)', background: 'var(--surface-color)', borderRadius: 'var(--radius-md)' }}>
-                            No detailed link data available for this audit.
+                            No links found for this category.
                         </div>
                     ) : (
-                        audit.links.map((link, index) => (
+                        filteredLinks.map((link, index) => (
                             <div key={index} className="card" style={{ marginBottom: 'var(--space-3)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                                     <div className={`icon-wrapper ${link.isImage ? 'info' : link.status === 'working' ? 'success' : link.status === 'broken' ? 'error' : 'warning'}`}>
