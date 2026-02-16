@@ -452,19 +452,30 @@ function AuditDetailModal({ audit, onClose, onExport }) {
 // Helper: Generate CSV Content
 function generateCSV(audit) {
     const headers = [
-        'URL', 'Type', 'Status', 'Status Code', 'Reason', 'Suggestion 1', 'Suggestion 2'
+        'URL', 'Type', 'Status', 'Status Code', 'Reason', 'Context', 'Suggestion 1', 'Suggestion 2'
     ];
 
     const rows = (audit.links || []).map(link => {
         const suggestions = link.alternatives || [];
+        // Escape CSV fields
+        const esc = (field) => {
+            if (field === null || field === undefined) return '';
+            const str = String(field);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
         return [
-            `"${link.original_url || link.url}"`,
+            esc(link.original_url || link.url),
             link.isImage ? 'Image' : 'Link',
             link.status,
             link.statusCode || link.status_code || '',
-            `"${link.reason || ''}"`,
-            `"${suggestions[0]?.url || ''}"`,
-            `"${suggestions[1]?.url || ''}"`
+            esc(link.reason || ''),
+            esc(link.context || ''),
+            esc(suggestions[0]?.url || ''),
+            esc(suggestions[1]?.url || '')
         ].join(',');
     });
 
@@ -481,10 +492,17 @@ function generateCSV(audit) {
 
 // Helper: Generate Markdown Content
 function generateMarkdown(audit) {
-    let md = `# Link Audit Report\n\n`;
-    md += `**Document:** ${audit.filename}\n`;
+    let md = `# Audit Report: ${audit.filename}\n\n`;
     md += `**Date:** ${new Date(audit.created_at).toLocaleDateString()}\n`;
     md += `**Total Links:** ${audit.total_links}\n\n`;
+
+    md += `## Table of Contents\n`;
+    md += `- [Summary](#summary)\n`;
+    if (audit.working_count > 0) md += `- [Working Links](#working-links)\n`;
+    if (audit.broken_count > 0) md += `- [Broken Links](#broken-links)\n`;
+    if (audit.restricted_count > 0) md += `- [Restricted Links](#restricted-links)\n`;
+    if ((audit.images_count || 0) > 0) md += `- [Images](#images)\n`;
+    md += `\n`;
 
     md += `## Summary\n`;
     md += `| Status | Count |\n|---|---|\n`;
@@ -508,11 +526,13 @@ function generateMarkdown(audit) {
         if (group.length === 0) return;
 
         const emoji = { broken: '❌', restricted: '🔐', timeout: '⏱️', redirect: '↪️', working: '✅' };
-        md += `### ${emoji[status] || ''} ${status.toUpperCase()} (${group.length})\n`;
+        const sectionId = `${status}-links`;
+        md += `### ${emoji[status] || ''} <a id="${sectionId}"></a>${status.toUpperCase()} (${group.length})\n`;
 
         group.forEach(link => {
             md += `- **${link.original_url || link.url}**\n`;
             if (link.reason) md += `  - Reason: ${link.reason}\n`;
+            if (link.context) md += `  - Context: "...${link.context.substring(0, 100)}..."\n`;
 
             if (link.alternatives && link.alternatives.length > 0) {
                 md += `  - **Suggestions:**\n`;
@@ -527,7 +547,7 @@ function generateMarkdown(audit) {
     // Images Section
     const images = links.filter(l => l.isImage);
     if (images.length > 0) {
-        md += `### 🖼️ IMAGES (${images.length})\n`;
+        md += `### 🖼️ <a id="images"></a>IMAGES (${images.length})\n`;
         images.forEach(link => {
             md += `- **${link.original_url || link.url}**\n`;
             if (link.reason) md += `  - Reason: ${link.reason}\n`;

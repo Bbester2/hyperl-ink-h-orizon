@@ -57,11 +57,14 @@ export async function GET(request) {
 function exportCsv(data) {
     const { audit, links } = data;
 
+    // Header for CSV
     const headers = [
         'URL',
+        'Type', // Added Type column
         'Status',
         'Status Code',
         'Reason',
+        'Context', // Added Context column
         'Response Time (ms)',
         'Checked At',
         'Suggestion 1',
@@ -71,16 +74,27 @@ function exportCsv(data) {
 
     const rows = links.map(link => {
         const suggestions = link.suggestions || [];
+        // Helper to escape CSV fields
+        const esc = (field) => {
+            if (field === null || field === undefined) return '';
+            const str = String(field);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
         return [
-            `"${link.original_url}"`,
+            esc(link.original_url),
+            link.is_image ? 'Image' : 'Link',
             link.status,
             link.status_code || '',
-            `"${link.reason || ''}"`,
+            esc(link.reason || ''),
+            esc(link.context || ''),
             link.response_time || '',
             link.checked_at || '',
-            suggestions[0]?.suggested_url || '',
-            suggestions[1]?.suggested_url || '',
-            suggestions[2]?.suggested_url || '',
+            esc(suggestions[0]?.suggested_url || ''),
+            esc(suggestions[1]?.suggested_url || ''),
         ].join(',');
     });
 
@@ -129,6 +143,7 @@ function exportMarkdown(data) {
 | ✅ Working | ${audit.working_count} |
 | ❌ Broken | ${audit.broken_count} |
 | 🔐 Restricted | ${audit.restricted_count} |
+| 🖼️ Images | ${audit.images_count || 0} |
 
 ## Link Details
 
@@ -139,19 +154,33 @@ function exportMarkdown(data) {
         broken: links.filter(l => l.status === 'broken'),
         restricted: links.filter(l => l.status === 'restricted'),
         redirect: links.filter(l => l.status === 'redirect'),
-        working: links.filter(l => l.status === 'working'),
+        // Working links excluding images
+        working: links.filter(l => l.status === 'working' && !l.is_image),
+        // Separate images group
+        images: links.filter(l => l.is_image),
     };
 
     for (const [status, statusLinks] of Object.entries(grouped)) {
         if (statusLinks.length === 0) continue;
 
-        md += `### ${statusEmoji[status] || ''} ${status.charAt(0).toUpperCase() + status.slice(1)} Links (${statusLinks.length})\n\n`;
+        let sectionTitle = status.charAt(0).toUpperCase() + status.slice(1) + ' Links';
+        let icon = statusEmoji[status] || '';
+
+        if (status === 'images') {
+            sectionTitle = 'Images';
+            icon = '🖼️';
+        }
+
+        md += `### ${icon} ${sectionTitle} (${statusLinks.length})\n\n`;
 
         for (const link of statusLinks) {
             md += `- **${link.original_url}**\n`;
 
             if (link.reason) {
                 md += `  - Reason: ${link.reason}\n`;
+            }
+            if (link.context) {
+                md += `  - Context: "...${link.context.substring(0, 100)}..."\n`;
             }
 
             if (link.suggestions?.length > 0) {
