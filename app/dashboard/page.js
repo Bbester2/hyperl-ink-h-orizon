@@ -199,10 +199,10 @@ export default function Dashboard() {
                         <Icons.FileText />
                         <span>Audits</span>
                     </Link>
-                    <a href="#" className="sidebar-link">
+                    <Link href="/settings" className="sidebar-link">
                         <Icons.Settings />
                         <span>Settings</span>
-                    </a>
+                    </Link>
                 </nav>
 
                 <div className="sidebar-cta">

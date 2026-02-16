@@ -92,6 +92,10 @@ export default function SettingsPage() {
                         <Icons.Home />
                         <span>Home</span>
                     </Link>
+                    <Link href="/dashboard" className="sidebar-link">
+                        <Icons.FileText /> // Assuming usage of FileText icon similar to dashboard
+                        <span>Audits</span>
+                    </Link>
                     <Link href="/settings" className="sidebar-link active">
                         <Icons.Settings />
                         <span>Settings</span>
