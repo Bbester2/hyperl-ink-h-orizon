@@ -28,7 +28,6 @@ const nextConfig = {
     env: {
         NEXT_PUBLIC_APP_NAME: 'Hyperlink Horizon',
         NEXT_PUBLIC_APP_VERSION: '1.0.0',
-        GEMINI_API_KEY: 'AIzaSyA4sz_KgI8nPWwftXcW2KcltL0edYpHZVg',
     },
 
     // Optimize for production
