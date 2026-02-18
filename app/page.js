@@ -99,6 +99,7 @@ export default function Home() {
     const [file, setFile] = useState(null);
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
+    const [queueStatus, setQueueStatus] = useState(''); // New state for queue messages
     const [results, setResults] = useState(null);
     const [dragActive, setDragActive] = useState(false);
     const fileInputRef = useRef(null);
@@ -122,6 +123,42 @@ export default function Home() {
         setError(null);
 
         try {
+            // 1. Get Ticket (Join Queue)
+            setLoading(true);
+            const ticketRes = await fetch('/api/queue/join', { method: 'POST' });
+
+            // If Redis is not configured (503), it might just fall through or error depending on implementation.
+            // Our API returns 503 if Redis missing.
+            let jobId = null;
+
+            if (ticketRes.status === 503) {
+                // Fallback: Redis missing, proceed directly (Skip Queue)
+                console.warn('Queue unavailable, skipping.');
+            } else if (!ticketRes.ok) {
+                throw new Error('Failed to join queue.');
+            } else {
+                const ticket = await ticketRes.json();
+                jobId = ticket.jobId;
+            }
+
+            // 2. Wait for Turn
+            if (jobId) {
+                let status = 'queued';
+
+                while (status !== 'ready') {
+                    const statusRes = await fetch(`/api/queue/status?jobId=${jobId}`);
+                    const statusData = await statusRes.json();
+
+                    if (statusData.status === 'ready') break;
+
+                    setQueueStatus(`Waiting in Line (Position: ${statusData.position + 1})`);
+                    await new Promise(r => setTimeout(r, 2000)); // Wait 2s
+                }
+
+                setQueueStatus('Processing...');
+            }
+
+            // 3. Upload & Process
             const formData = new FormData();
             if (fileToUse) {
                 formData.append('file', fileToUse);
@@ -129,29 +166,23 @@ export default function Home() {
                 formData.append('url', urlToUse);
             }
 
-            // Append Analysis Configuration from Settings
+            // Append Settings
             try {
                 const settings = JSON.parse(localStorage.getItem('hyperlink_settings') || '{}');
-                if (settings.strictMode) {
-                    formData.append('strictMode', 'true');
-                }
-                if (settings.ignoredDomains) {
-                    formData.append('ignoredDomains', settings.ignoredDomains);
-                }
-            } catch (e) {
-                console.warn('Failed to load settings:', e);
-            }
+                if (settings.strictMode) formData.append('strictMode', 'true');
+                if (settings.ignoredDomains) formData.append('ignoredDomains', settings.ignoredDomains);
+            } catch (e) { console.warn('Failed to load settings:', e); }
 
-            const response = await fetch('/api/upload', {
+            const uploadUrl = jobId ? `/api/upload?jobId=${jobId}` : '/api/upload';
+
+            const response = await fetch(uploadUrl, {
                 method: 'POST',
                 body: formData,
             });
 
             if (!response.ok) {
-                // Handle non-200 responses (e.g. 504 Timeout, 413 Payload Too Large)
-                if (response.status === 504) {
-                    throw new Error('Analysis timed out. The file might be too large/complex.');
-                }
+                if (response.status === 429) throw new Error('Queue error: Lost turn. Please try again.');
+                if (response.status === 504) throw new Error('Analysis timed out. File too large.');
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.error || `Server error: ${response.status}`);
             }
@@ -159,11 +190,9 @@ export default function Home() {
             const data = await response.json();
             setResults(data);
 
-            // Save to localStorage for Dashboard persistence
+            // Save History (Logic remains same)
             try {
                 const currentHistory = JSON.parse(localStorage.getItem('hyperlink_audits') || '[]');
-
-                // Create audit summary object
                 const newAudit = {
                     id: data.auditId,
                     filename: data.filename,
@@ -175,28 +204,24 @@ export default function Home() {
                     restricted_count: data.summary.review,
                     images_count: data.summary.images || 0,
                     status: 'complete',
-                    links: data.links // Store links for details view
+                    links: data.links
                 };
-
-                // Add to beginning of history, limit to 20 items
                 const updatedHistory = [newAudit, ...currentHistory].slice(0, 20);
                 localStorage.setItem('hyperlink_audits', JSON.stringify(updatedHistory));
 
-                // Show save confirmation
                 setError(null);
                 const resultsElement = document.getElementById('results-section');
-                if (resultsElement) {
-                    resultsElement.scrollIntoView({ behavior: 'smooth' });
-                }
+                if (resultsElement) resultsElement.scrollIntoView({ behavior: 'smooth' });
             } catch (err) {
-                console.error('Failed to save to history:', err);
-                setError('Warning: Failed to save results to Dashboard history. ' + err.message);
+                console.error('Failed to save history:', err);
             }
+
         } catch (err) {
             console.error('Upload error:', err);
             setError(err.message || 'An unexpected error occurred');
         } finally {
             setLoading(false);
+            setQueueStatus('');
         }
     };
 
@@ -361,7 +386,7 @@ export default function Home() {
                                     onClick={() => handleSubmit()}
                                     disabled={loading || (!file && !url)}
                                 >
-                                    {loading ? 'Scanning...' : 'Analyze'}
+                                    {loading ? (queueStatus || 'Scanning...') : 'Analyze'}
                                 </button>
                             </div>
 

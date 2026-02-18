@@ -181,6 +181,80 @@ export default function Dashboard() {
         document.body.removeChild(link);
     };
 
+    const handleGetSuggestions = async (auditId) => {
+        const auditIndex = audits.findIndex(a => a.id === auditId);
+        if (auditIndex === -1) return;
+
+        const audit = audits[auditIndex];
+        const linksToSuggest = audit.links.filter(
+            l => ['broken', 'restricted', 'timeout'].includes(l.status) && (!l.alternatives || l.alternatives.length === 0)
+        );
+
+        if (linksToSuggest.length === 0) {
+            alert("No broken or restricted links found needing suggestions.");
+            return;
+        }
+
+        const button = document.getElementById('ai-btn-' + auditId);
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner"></span> Generating...';
+        }
+
+        try {
+            // Transform for API
+            const apiLinks = linksToSuggest.map(l => ({
+                url: l.original_url || l.url,
+                context: l.context || ''
+            }));
+
+            const response = await fetch('/api/suggest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ links: apiLinks, count: 2 })
+            });
+
+            if (!response.ok) throw new Error("Failed to get suggestions");
+
+            const data = await response.json();
+
+            // Merge results back into audit
+            const updatedLinks = [...audit.links];
+
+            data.results.forEach(result => {
+                const linkIndex = updatedLinks.findIndex(l => (l.original_url || l.url) === result.originalUrl);
+                if (linkIndex !== -1) {
+                    updatedLinks[linkIndex] = {
+                        ...updatedLinks[linkIndex],
+                        alternatives: result.suggestions
+                    };
+                }
+            });
+
+            // Update state and storage
+            const updatedAudit = { ...audit, links: updatedLinks };
+            const newAudits = [...audits];
+            newAudits[auditIndex] = updatedAudit;
+
+            setAudits(newAudits);
+            localStorage.setItem('hyperlink_audits', JSON.stringify(newAudits));
+
+            // If this is the currently selected audit, update it too so modal refreshes
+            if (selectedAudit && selectedAudit.id === auditId) {
+                setSelectedAudit(updatedAudit);
+            }
+
+        } catch (error) {
+            console.error("AI Error:", error);
+            alert("Failed to generate AI suggestions. Please check your API key.");
+        } finally {
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> Get AI Suggestions';
+            }
+        }
+    };
+
     return (
         <div className="dashboard-layout">
             {/* Sidebar */}
@@ -338,6 +412,7 @@ export default function Dashboard() {
                     audit={selectedAudit}
                     onClose={() => setSelectedAudit(null)}
                     onExport={(format) => handleExport(selectedAudit.id, format)}
+                    onGetSuggestions={handleGetSuggestions}
                 />
             )}
 
@@ -346,7 +421,7 @@ export default function Dashboard() {
     );
 }
 
-function AuditDetailModal({ audit, onClose, onExport }) {
+function AuditDetailModal({ audit, onClose, onExport, onGetSuggestions }) {
     const [filter, setFilter] = useState('all'); // 'all', 'working', 'broken', 'restricted', 'images'
 
     const filteredLinks = (audit.links || []).filter(link => {
@@ -488,7 +563,18 @@ function AuditDetailModal({ audit, onClose, onExport }) {
                             <Icons.Download />
                             Export Report
                         </button>
-                        <button className="btn btn-secondary">
+                        <button
+                            id={`ai-btn-${audit.id}`}
+                            className="btn btn-secondary"
+                            onClick={() => {
+                                // Close modal if needed or handle directly?
+                                // Actually we need to call the parent handler.
+                                // But `handleGetSuggestions` is in parent.
+                                // We need to pass it down or move logic. 
+                                // Let's assume we pass a new prop `onGetSuggestions`
+                                if (onGetSuggestions) onGetSuggestions(audit.id);
+                            }}
+                        >
                             <Icons.Sparkles />
                             Get AI Suggestions
                         </button>

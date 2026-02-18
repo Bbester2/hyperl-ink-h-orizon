@@ -16,7 +16,8 @@
     "pdf-parse": "^1.1.1",
     "cheerio": "^1.0.0",
     "jszip": "^3.10.1",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "@upstash/redis": "^1.34.0"
   },
   "devDependencies": {
     "eslint": "^8.0.0",

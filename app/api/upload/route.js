@@ -9,16 +9,39 @@ import { verifyLinks } from '@/lib/link-verifier';
 import { getSuggestionsForLinks } from '@/lib/ai-service';
 import { createAudit, updateAudit, saveLinks, saveSuggestions } from '@/lib/db';
 import { validateUrl, validateFile, MAX_FILE_SIZE } from '@/lib/security';
+import { RedisQueue } from '@/lib/redis-queue';
 
 export const maxDuration = 60; // Allow up to 60 seconds for processing
 
 export async function POST(request) {
+    let jobId = null;
     try {
         const formData = await request.formData();
         const file = formData.get('file');
         const url = formData.get('url');
         const strictMode = formData.get('strictMode') === 'true';
         const ignoredDomains = formData.get('ignoredDomains') || '';
+
+        // Check Queue Lock
+        jobId = request.nextUrl.searchParams.get('jobId');
+
+        if (RedisQueue.isReady()) {
+            if (!jobId) {
+                return NextResponse.json(
+                    { error: 'Queue ID missing. Please refresh and try again.' },
+                    { status: 400 }
+                );
+            }
+
+            // Double check lock ownership (security)
+            const canProcess = await RedisQueue.canProcess(jobId);
+            if (!canProcess) {
+                return NextResponse.json(
+                    { error: 'It is not your turn yet. Please wait.' },
+                    { status: 429 }
+                );
+            }
+        }
 
         if (!file && !url) {
             return NextResponse.json(
@@ -31,7 +54,6 @@ export async function POST(request) {
         let filename = '';
         let fileType = '';
         let sourceUrl = null;
-
 
         // Process file upload
         if (file) {
@@ -150,6 +172,11 @@ export async function POST(request) {
             { error: `Processing Failed: ${error.message}` },
             { status: 500 }
         );
+    } finally {
+        // Release Lock / Remove from Queue
+        if (jobId && RedisQueue.isReady()) {
+            await RedisQueue.complete(jobId);
+        }
     }
 }
 
