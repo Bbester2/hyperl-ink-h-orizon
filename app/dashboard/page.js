@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+// Dynamically import to avoid SSR issues if necessary, but standard import usually works for client components
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+
 // SVG Icons - Professional stroke-style icons
 const Icons = {
     Link: () => (
@@ -144,9 +148,42 @@ export default function Dashboard() {
         ? Math.round((totalStats.working / totalStats.total) * 100)
         : 0;
 
+    const generatePDF = async (audit) => {
+        const modalElement = document.querySelector('.modal-body');
+        if (!modalElement) return;
+
+        try {
+            const canvas = await html2canvas(modalElement, {
+                scale: 2, // Higher resolution
+                useCORS: true, // Handle images if possible
+                logging: false,
+                windowHeight: modalElement.scrollHeight + 100 // Ensure full height capture
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [canvas.width, canvas.height] // Custom size to fit one long page
+            });
+
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+            pdf.save(`Report-${audit.filename.replace(/\.[^/.]+$/, "")}.pdf`);
+        } catch (err) {
+            console.error("PDF Generation Error:", err);
+            alert("Failed to generate PDF. Please try again.");
+        }
+    };
+
     const handleExport = (auditId, format = 'csv') => {
         const audit = audits.find(a => a.id === auditId);
         if (!audit) return;
+
+        // Handle PDF Export
+        if (format === 'pdf') {
+            generatePDF(audit);
+            return;
+        }
 
         let content = '';
         let mimeType = '';
@@ -558,10 +595,18 @@ function AuditDetailModal({ audit, onClose, onExport, onGetSuggestions }) {
                     <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-6)' }}>
                         <button
                             className="btn btn-primary"
-                            onClick={() => onExport && onExport()}
+                            onClick={() => onExport && onExport('pdf')}
+                            style={{ background: '#dc2626', borderColor: '#dc2626' }} // Red for PDF
                         >
                             <Icons.Download />
-                            Export Report
+                            Save as PDF
+                        </button>
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => onExport && onExport('csv')}
+                        >
+                            <Icons.FileText />
+                            Export CSV
                         </button>
                         <button
                             id={`ai-btn-${audit.id}`}
