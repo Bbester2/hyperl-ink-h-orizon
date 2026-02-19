@@ -171,7 +171,7 @@ export default function Dashboard() {
             pdf.save(`Report-${audit.filename.replace(/\.[^/.]+$/, "")}.pdf`);
         } catch (err) {
             console.error("PDF Generation Error:", err);
-            alert("Failed to generate PDF. Please try again.");
+            alert(`Failed to generate PDF: ${err.message}`);
         }
     };
 
