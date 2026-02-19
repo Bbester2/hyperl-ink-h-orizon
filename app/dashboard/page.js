@@ -150,25 +150,57 @@ export default function Dashboard() {
 
     const generatePDF = async (audit) => {
         const modalElement = document.querySelector('.modal-body');
-        if (!modalElement) return;
+        if (!modalElement) {
+            alert("Error: Report content not found.");
+            return;
+        }
 
         try {
-            const canvas = await html2canvas(modalElement, {
-                scale: 2, // Higher resolution
-                useCORS: true, // Handle images if possible
-                logging: false,
-                windowHeight: modalElement.scrollHeight + 100 // Ensure full height capture
+            // OPTIMIZED: Clone the node to capture FULL content (scrolled or not)
+            const clone = modalElement.cloneNode(true);
+
+            // Style the clone to ensure it renders fully expanded
+            clone.style.position = 'absolute';
+            clone.style.top = '-9999px';
+            clone.style.left = '-9999px';
+            clone.style.width = '1000px'; // Fixed print width
+            clone.style.height = 'auto'; // Let it expand
+            clone.style.overflow = 'visible';
+            clone.style.zIndex = '-1';
+            clone.style.background = '#ffffff'; // Ensure white background
+
+            document.body.appendChild(clone);
+
+            // Wait a tick for styles to apply
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const canvas = await html2canvas(clone, {
+                scale: 2,
+                useCORS: true,
+                logging: false, // Turn on if debugging needed
+                windowWidth: 1000
             });
 
-            const imgData = canvas.toDataURL('image/png');
+            // Remove clone
+            document.body.removeChild(clone);
+
+            // Check if canvas is valid
+            if (canvas.width === 0 || canvas.height === 0) {
+                throw new Error("Captured content is empty.");
+            }
+
+            // Convert to JPEG (More robust for large reports than PNG)
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'px',
-                format: [canvas.width, canvas.height] // Custom size to fit one long page
+                format: [canvas.width, canvas.height]
             });
 
-            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+            pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
             pdf.save(`Report-${audit.filename.replace(/\.[^/.]+$/, "")}.pdf`);
+
         } catch (err) {
             console.error("PDF Generation Error:", err);
             alert(`Failed to generate PDF: ${err.message}`);
