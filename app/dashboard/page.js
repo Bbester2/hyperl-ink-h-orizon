@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-// Dynamically import to avoid SSR issues if necessary, but standard import usually works for client components
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
@@ -87,8 +85,8 @@ const Icons = {
             <polyline points="17 6 23 6 23 12" />
         </svg>
     ),
-    Sparkles: () => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    Sparkles: (props) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
             <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
         </svg>
     ),
@@ -149,56 +147,74 @@ export default function Dashboard() {
         : 0;
 
     const generatePDF = async (audit) => {
-        const modalElement = document.querySelector('.modal-body');
-        if (!modalElement) {
+        // Target the whole modal card to include header/title and preserve styles
+        const originalElement = document.querySelector('.modal');
+        if (!originalElement) {
             alert("Error: Report content not found.");
             return;
         }
 
         try {
-            // OPTIMIZED: Clone the node to capture FULL content (scrolled or not)
-            const clone = modalElement.cloneNode(true);
+            // Clone the node
+            const clone = originalElement.cloneNode(true);
 
-            // Style the clone to ensure it renders fully expanded
-            clone.style.position = 'absolute';
-            clone.style.top = '-9999px';
-            clone.style.left = '-9999px';
-            clone.style.width = '1000px'; // Fixed print width
-            clone.style.height = 'auto'; // Let it expand
+            // Remove the close button from the clone (optional, looks cleaner in PDF)
+            const closeBtn = clone.querySelector('.modal-close');
+            if (closeBtn) closeBtn.remove();
+
+            // Set up a container to hold the clone off-screen but "visible" to the renderer
+            const container = document.createElement('div');
+            container.style.position = 'fixed';
+            container.style.left = '-10000px';
+            container.style.top = '0';
+            container.style.width = '800px'; // Standard A4-ish width
+            container.style.height = 'auto';
+            container.style.overflow = 'visible';
+            container.style.zIndex = '-9999';
+
+            // Style the clone to ensure it renders correctly
+            clone.style.position = 'static'; // Reset positioning
+            clone.style.transform = 'none';
+            clone.style.width = '100%';
+            clone.style.height = 'auto';
+            clone.style.maxHeight = 'none'; // Ensure it expands full height
             clone.style.overflow = 'visible';
-            clone.style.zIndex = '-1';
-            clone.style.background = '#ffffff'; // Ensure white background
+            clone.style.background = '#ffffff'; // Force white background
+            clone.style.color = '#000000'; // Force text color
+            clone.style.margin = '0';
+            clone.style.borderRadius = '0'; // Flat corners looks better in PDF
+            clone.style.boxShadow = 'none';
 
-            document.body.appendChild(clone);
+            container.appendChild(clone);
+            document.body.appendChild(container);
 
             // Wait a tick for styles to apply
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             const canvas = await html2canvas(clone, {
                 scale: 2,
                 useCORS: true,
-                logging: false, // Turn on if debugging needed
+                logging: false,
+                backgroundColor: '#ffffff', // Canvas background
                 windowWidth: 1000
             });
 
-            // Remove clone
-            document.body.removeChild(clone);
+            // Cleanup
+            document.body.removeChild(container);
 
-            // Check if canvas is valid
             if (canvas.width === 0 || canvas.height === 0) {
                 throw new Error("Captured content is empty.");
             }
 
-            // Convert to JPEG (More robust for large reports than PNG)
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
 
             const pdf = new jsPDF({
                 orientation: 'portrait',
-                unit: 'px',
-                format: [canvas.width, canvas.height]
+                unit: 'pt',
+                format: [595.28, (canvas.height * 595.28) / canvas.width]
             });
 
-            pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+            pdf.addImage(imgData, 'JPEG', 0, 0, 595.28, (canvas.height * 595.28) / canvas.width);
             pdf.save(`Report-${audit.filename.replace(/\.[^/.]+$/, "")}.pdf`);
 
         } catch (err) {
