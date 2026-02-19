@@ -642,6 +642,7 @@ function AuditDetailModal({ audit, onClose, onExport, onGetSuggestions }) {
                     {/* Actions */}
                     <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-6)' }}>
                         <button
+                            id={`pdf-btn-${audit.id}`}
                             className="btn btn-primary"
                             onClick={() => onExport && onExport('pdf')}
                             style={{ background: '#dc2626', borderColor: '#dc2626' }} // Red for PDF
