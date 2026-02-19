@@ -24,6 +24,9 @@ export async function GET(request) {
             return NextResponse.json({ status: 'unknown', message: 'Job not found in queue' });
         }
 
+        // Send Heartbeat to say "I am still here waiting"
+        await RedisQueue.updateHeartbeat(jobId);
+
         // Check if we can start (Head of Line + Lock Free)
         const canStart = await RedisQueue.canProcess(jobId);
 
